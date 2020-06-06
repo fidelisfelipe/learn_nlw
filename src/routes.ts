@@ -1,45 +1,16 @@
-import express from 'express';
+import express, { request, response } from 'express';
+
+import PointsController from './controllers/PointsController';
+import ItemsController from './controllers/ItemsController';
 
 const routes = express.Router();
 
-const users =  [
-    'Arthur',//0
-    'Letícia',//1
-    'Marcia'//2
-];
-//Rota
+const pointsController = new PointsController();
+const itemsController = new ItemsController();
 
-function getUserList(request, response) {
-    console.log('list users');
-    const search = String(request.query.search);
-    console.log('search:'+search);
-
-    const filteredUsers = search ? users.filter(user => user.includes(search)) : users;
-
-    response.json(filteredUsers);
-}
-function gerUser(request, response) {
-console.log('get user');
-response.send(users[Number(request.params.id)]);
-}
-function setUser(request, response) {
-const data = request.body;
-const user = {
-    name: data.name,
-    email: data.email
-};
-console.log("set user: "+data);
-return response.json(user);
-}
-
-function home(request, response){
-console.log('home');
-response.send('hello word');
-}
-
-routes.get(['/', ''], home);
-routes.get('/users', getUserList);
-routes.get('/users/:id', gerUser);
-routes.post('/users', setUser);
+routes.get('/items', itemsController.index);
+routes.post('/points', pointsController.create);
+routes.get('/points/:id', pointsController.show);
+routes.get('/points', pointsController.index);
 
 export default routes;
