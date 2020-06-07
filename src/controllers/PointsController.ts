@@ -3,6 +3,25 @@ import knex from '../databases/connection';
 
 class PointsController {
     async index(request:Request, response:Response){
+        
+        const {
+            city,
+            uf,
+            items} = request.query;
+            
+            console.log('point list', city, uf, items);
+            const parseItems = String(items)
+            .split(',')
+            .map(item => Number(item.trim()));
+
+            const points = await knex('points')
+            .join('point_items', 'points.id', '=', 'point_items.point_id')
+            .whereIn('point_items.item_id', parseItems)
+            .where('city', String(city))
+            .where('uf', String(uf)).distinct()
+            .select('points.*');
+
+        response.json(points);
     }
 
     async show (request:Request, response:Response){
@@ -16,7 +35,7 @@ class PointsController {
 
             const items = await knex('items')
                 .join('point_items', 'items.id', '=', 'point_items.item_id')
-                .where('point_items.point_id', id)
+                .where('point_items.item_id', id)
                 .select('items.title');
 
             return response.json({point, items});
@@ -37,7 +56,7 @@ class PointsController {
         const tx = await knex.transaction();
 
         const point = {
-            image: 'image-fake',
+            image: 'https://images.unsplash.com/photo-1590477330477-9d4d4fe65316?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjczMTc0fQ&auto=format&fit=crop&w=80&q=80',
             name,
             email,
             whatsapp,
@@ -57,7 +76,7 @@ class PointsController {
         });
 
         await tx('point_items').insert(pointItems);
-
+        await tx.commit();
         return response.json({
             id: point_id,
             ... point,

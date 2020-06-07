@@ -13,3 +13,5 @@ npx tsc --init
 npx ts-node/register
 npx knex migrate:latest --knexfile knexfile.ts migrate:latest
 
+npm install cors
+
